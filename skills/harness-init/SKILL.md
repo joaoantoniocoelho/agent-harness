@@ -48,7 +48,7 @@ Regras:
      --install-cmd '<ci.install>' \
      [--overwrite <target>]... [--skip <target>]...
    ```
-   - Use `--skip` para o que o usuário não quiser, incluindo configs de lint do harness num repo que não vai adotar a ferramenta.
+   - Use `--skip` para o que o usuário não quiser, incluindo configs de lint do harness num repo que não vai adotar a ferramenta. `tsconfig.eslint.json` acompanha `eslint.config.mjs`: pule os dois juntos.
    - Comando vazio (`--set 'BUILD_CMD='`) pula o passo.
 
 4. **Dependências.** Para cada linha `missing` que ainda se aplica (ex: o usuário aceitou a config de ESLint do harness), mostre o comando exato no package manager **do repo**. Exemplos:

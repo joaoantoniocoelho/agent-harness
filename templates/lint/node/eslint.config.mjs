@@ -10,7 +10,8 @@ export default defineConfig(
   tseslint.configs.strictTypeChecked,
   {
     languageOptions: {
-      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
+      // A lint-only tsconfig covers tests and *.config.ts that the build tsconfig leaves out.
+      parserOptions: { project: "./tsconfig.eslint.json", tsconfigRootDir: import.meta.dirname },
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
@@ -18,7 +19,11 @@ export default defineConfig(
       "@typescript-eslint/no-non-null-assertion": "error",
       "max-depth": ["error", 3],
       "no-else-return": ["error", { allowElseIf: false }],
-      "no-param-reassign": ["error", { props: true }],
+      "no-param-reassign": [
+        "error",
+        // Framework objects meant to be mutated (Express req/res, Koa ctx).
+        { props: true, ignorePropertyModificationsFor: ["req", "res", "request", "response", "ctx"] },
+      ],
       "prefer-const": "error",
     },
   },

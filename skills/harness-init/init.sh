@@ -294,6 +294,8 @@ entries() {
   printf 'block\tCLAUDE.md\ttemplates/CLAUDE.md\n'
   case "$stack" in
     node)
+      # Listed before eslint.config.mjs: it is only needed when the harness ESLint config is installed.
+      printf 'lint\ttsconfig.eslint.json\ttemplates/lint/node/tsconfig.eslint.json\n'
       printf 'lint\teslint.config.mjs\ttemplates/lint/node/eslint.config.mjs\n'
       printf 'lint\t.prettierrc\ttemplates/lint/node/.prettierrc\n'
       printf 'lint\ttsconfig.json\ttemplates/lint/node/tsconfig.base.json\n'
@@ -324,6 +326,7 @@ equivalent_of() {
       [[ -f package.json ]] && jq -e '.prettier' package.json >/dev/null && echo "package.json#prettier"
       ;;
     tsconfig.json) has_file tsconfig.json ;;
+    tsconfig.eslint.json) has_file tsconfig.eslint.json || equivalent_of eslint.config.mjs ;;
     ruff.toml)
       has_file ruff.toml .ruff.toml .flake8 && return
       toml_has '^\[tool\.(ruff|black|flake8)' && { echo "pyproject.toml"; return; }

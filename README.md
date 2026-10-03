@@ -50,7 +50,7 @@ Arquivos que o `/harness-init` cria no repo:
 - `scripts/check`, `scripts/guardrails.sh`, `scripts/tests-touched.sh`;
 - `.github/workflows/check.yml`;
 - `AGENTS.md` e `CLAUDE.md`, ou só uma seção entre `<!-- harness:start -->`/`<!-- harness:end -->` se já existirem;
-- configs de lint do harness, só onde não existir equivalente;
+- configs de lint do harness, só onde não existir equivalente (no Node, `eslint.config.mjs` vem com um `tsconfig.eslint.json` que cobre testes e `*.config.ts`);
 - `.harness/manifest`, usado pelo uninstall;
 - as linhas `docs/plans/` e `.harness/backup/` no `.gitignore`.
 
