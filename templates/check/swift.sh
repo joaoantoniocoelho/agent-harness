@@ -7,7 +7,7 @@ cd "$(git rev-parse --show-toplevel)"
 
 # Xcode project settings (filled by /harness-init).
 SCHEME='CHANGE_ME'
-DESTINATION='platform=iOS Simulator,name=iPhone 16'
+DESTINATION='platform=iOS Simulator,name=iPhone 17'
 export SCHEME DESTINATION
 
 FORMAT_CMD='swift format lint --recursive --strict .'

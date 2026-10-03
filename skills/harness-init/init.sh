@@ -248,7 +248,10 @@ detect_swift() {
   fi
   # shellcheck disable=SC2086 # flag is "-workspace X" / "-project X"
   schemes=$(xcodebuild -list -json $flag 2>/dev/null | jq -r '(.workspace // .project).schemes // [] | join(" ")' || true)
-  destination='platform=iOS Simulator,name=iPhone 16'
+  local simulator
+  simulator=$(xcrun simctl list devices available 2>/dev/null |
+    sed -n 's/^ *\(iPhone[^(]*[^ (]\) *(.*/\1/p' | head -n 1)
+  destination="platform=iOS Simulator,name=${simulator:-iPhone 17}"
   if grep -rqs 'SDKROOT = macosx' --include=project.pbxproj . 2>/dev/null; then
     destination='platform=macOS'
   fi
