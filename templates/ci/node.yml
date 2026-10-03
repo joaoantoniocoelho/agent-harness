@@ -1,0 +1,24 @@
+# Installed by agent-harness: runs the same scripts/check the agents run locally.
+name: check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - run: corepack enable
+      - run: __INSTALL_CMD__
+      - run: scripts/check
+        env:
+          BASE_REF: origin/${{ github.base_ref || 'main' }}
+          CI: "true"

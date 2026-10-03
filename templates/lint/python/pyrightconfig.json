@@ -1,0 +1,4 @@
+{
+  "typeCheckingMode": "strict",
+  "exclude": [".venv", "build", "dist"]
+}

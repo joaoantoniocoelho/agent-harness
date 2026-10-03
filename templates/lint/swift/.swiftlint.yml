@@ -1,0 +1,28 @@
+# agent-harness default SwiftLint config for new Swift projects.
+# Size metrics are guidelines, not gates: cohesion matters more than line counts.
+disabled_rules:
+  - function_body_length
+  - file_length
+  - type_body_length
+  - line_length
+
+opt_in_rules:
+  - force_unwrapping
+
+force_cast: error
+force_try: error
+force_unwrapping:
+  severity: error
+
+nesting:
+  type_level: 2
+  function_level: 3
+
+cyclomatic_complexity:
+  warning: 10
+  error: 15
+
+excluded:
+  - .build
+  - DerivedData
+  - Pods
