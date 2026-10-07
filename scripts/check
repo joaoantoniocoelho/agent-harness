@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Verification entry point for the harness repo itself (used by agents and ship.sh).
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+shell_files() {
+  git ls-files -co --exclude-standard -- '*.sh' 'scripts/check'
+}
+
+# Failures are accumulated explicitly: set -e does not apply inside `if ! "$2"` in step().
+check_syntax() {
+  local f failed=0
+  while IFS= read -r f; do
+    bash -n "$f" || failed=1
+  done < <(shell_files)
+  return "$failed"
+}
+
+check_shellcheck() {
+  command -v shellcheck >/dev/null || { echo "shellcheck is required (brew install shellcheck)" >&2; return 1; }
+  shell_files | xargs shellcheck
+}
+
+# Skills without name/description in the frontmatter are silently ignored by Claude and Codex.
+check_skills() {
+  local f frontmatter failed=0
+  for f in skills/*/SKILL.md; do
+    frontmatter=$(awk 'NR==1 && $0!="---" {exit} NR>1 && $0=="---" {exit} NR>1 {print}' "$f")
+    for key in name description; do
+      if ! grep -q "^$key: ." <<<"$frontmatter"; then
+        echo "$f: missing '$key' in frontmatter" >&2
+        failed=1
+      fi
+    done
+  done
+  return "$failed"
+}
+
+step() {
+  local name=$1
+  echo "==> $name"
+  if ! "$2"; then
+    echo "✗ check failed at step: $name" >&2
+    exit 1
+  fi
+}
+
+step syntax check_syntax
+step shellcheck check_shellcheck
+step skills check_skills
+echo "✓ check passed"

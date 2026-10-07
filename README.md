@@ -70,7 +70,7 @@ Arquivos que o `/harness-init` cria no repo:
 - Entrega um resumo em PT-BR. Tudo fica **sem commit** para você revisar.
 
 ### 3. Review (opcional, manual)
-- `/review` revisa o working tree completo (modified, staged e untracked) e grava `docs/plans/<slug>.review.md` com os findings bloqueantes e as sugestões.
+- `/review` revisa o working tree completo (modified, staged e untracked), ou um PR com `/review <número|link>`, e grava `docs/plans/<slug>.review.md` com os findings bloqueantes e as sugestões.
 - No Claude, roda com contexto isolado. No Codex, use uma sessão nova.
 - Para corrigir, diga na sessão de implementação: "corrige os findings do review".
 
