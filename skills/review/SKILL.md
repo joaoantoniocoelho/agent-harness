@@ -1,6 +1,6 @@
 ---
 name: review
-description: Revisa as mudanças do working tree completo (modified, staged e untracked) contra o plano/issue e as regras do repo, e grava os findings em docs/plans/<slug>.review.md sem alterar código. Use só quando o usuário invocar /review explicitamente.
+description: Revisa as mudanças do working tree completo (modified, staged e untracked) ou um PR do GitHub (número ou link) contra o plano/issue/PR e as regras do repo, e grava os findings em docs/plans/<slug>.review.md sem alterar código. Use só quando o usuário invocar /review explicitamente.
 disable-model-invocation: true
 context: fork
 ---
@@ -9,7 +9,10 @@ context: fork
 
 Você é um revisor independente. **Não altere código.** O único arquivo que você escreve é o relatório.
 
-## 1. Coletar o working tree completo
+## 1. Coletar as mudanças
+Argumento: `$ARGUMENTS` (no Codex, o número ou link de PR citado no pedido).
+
+### Sem argumento: working tree completo
 Não use só `git diff`. Rode todos:
 ```bash
 git status --porcelain=v1 --untracked-files=all   # modified, staged, untracked
@@ -20,12 +23,25 @@ git diff "$(git merge-base origin/HEAD HEAD 2>/dev/null || git rev-parse HEAD)" 
 - Leia **inteiro** cada arquivo untracked relevante (código, testes, configs, migrations). Ignore artefatos de build, dependências e o que estiver no `.gitignore`.
 - Para arquivos modificados, leia o contexto em volta do diff, não só as linhas alteradas.
 
+### Com número ou link de PR
+```bash
+gh pr view <pr> --json number,title,body,baseRefName,headRefName,closingIssuesReferences,files,comments
+gh pr diff <pr>
+```
+- `<pr>` é o número ou a URL exatamente como o usuário passou.
+- Não faça checkout da branch do PR. Para ler o contexto em volta do diff, rode `git fetch origin pull/<number>/head` (funciona também com PR de fork) e use `git show FETCH_HEAD:<path>`.
+- Ignore o working tree local: ele não faz parte do PR.
+
 ## 2. Entender a tarefa
-- **Fonte da tarefa:** `docs/plans/<slug>.md`, ou a issue (`gh issue view <n> --json title,body,labels,comments`). Se não estiver claro qual é a tarefa, use o plano mais recente em `docs/plans/` e diga isso no relatório.
+- **Fonte da tarefa**, na ordem:
+  1. `docs/plans/<slug>.md` da tarefa;
+  2. a issue (`gh issue view <n> --json title,body,labels,comments`), incluindo as issues em `closingIssuesReferences` do PR;
+  3. o título e o corpo do PR.
+- **Sem fonte clara:** não chute um plano (nem o mais recente de `docs/plans/`). Revise só corretude, testes, estilo, convenções e guardrails, pule a aderência e diga no relatório que não havia plano, issue nem descrição útil.
 - **Regras:** o `AGENTS.md` do repo (prevalece), `~/Developer/agent-harness/global/AGENTS.md` e `~/Developer/agent-harness/rules/<stack>.md`.
 
 ## 3. Revisar
-- **Aderência:** cada critério de aceite foi atendido? Tem algo fora do escopo?
+- **Aderência** (só com fonte da tarefa): cada critério de aceite foi atendido? Tem algo fora do escopo?
 - **Corretude:** bugs, edge cases, tratamento de erro, concorrência, segurança (input externo, injeção, segredos).
 - **Testes:** cobrem o comportamento novo e os casos de borda? São fracos (só happy path, mocks demais)?
 - **Estilo que o lint não pega:** nomes, nesting, abstração prematura, comentários que explicam o quê em vez do porquê, funções sem coesão.
@@ -37,11 +53,17 @@ git diff "$(git merge-base origin/HEAD HEAD 2>/dev/null || git rev-parse HEAD)" 
   - dependência nova não pedida.
 
 ## 4. Relatório
-Grave `docs/plans/<slug>.review.md` (ou `docs/plans/issue-<n>.review.md`):
+Grave em `docs/plans/`, com o nome:
+- `<slug>.review.md` quando houver plano;
+- `issue-<n>.review.md` quando a fonte for uma issue;
+- `pr-<n>.review.md` ao revisar um PR sem plano nem issue;
+- `wip-<AAAA-MM-DD>.review.md` ao revisar o working tree sem fonte da tarefa.
 
 ```markdown
 # Review: <título>
 - Data: <AAAA-MM-DD>
+- Alvo: <working tree | PR #n (base ← head)>
+- Fonte da tarefa: <plano | issue #n | descrição do PR | nenhuma (aderência não revisada)>
 - Escopo revisado: <N arquivos: lista curta, incluindo untracked>
 
 ## Bloqueantes
